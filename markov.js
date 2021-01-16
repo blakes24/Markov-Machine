@@ -32,7 +32,11 @@ class MarkovMachine {
 	/** return random text from chains */
 
 	makeText(numWords = 100) {
-		let keys = Object.keys(this.chains);
+		let keys = Object.keys(this.chains).filter((word) => word.match(/[A-Z]/));
+
+		if (keys.length === 0) {
+			keys = Object.keys(this.chains);
+		}
 		let word = keys[Math.floor(Math.random() * keys.length)];
 		let text = [ word ];
 		let next = word;
@@ -42,7 +46,9 @@ class MarkovMachine {
 			text.push(next);
 			word = next;
 		}
-		return text.join(' ');
+		let str = text.join(' ');
+		let index = str.lastIndexOf('.') + 1 || str.length + 1;
+		return str.slice(0, index);
 	}
 }
 
