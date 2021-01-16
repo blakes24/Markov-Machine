@@ -16,14 +16,21 @@ class MarkovMachine {
 
 	makeChains() {
 		let chains = {};
-		for (let i = 0; i < this.words.length; i++) {
-			let word = this.words[i];
-			let nextWord = this.words[i + 1] || null;
 
-			if (chains[word]) {
-				chains[word].push(nextWord);
+		for (let i = 0; i < this.words.length; i++) {
+			// create a bigram with current word and next word
+			let bigram = this.words[i] + ' ' + this.words[i + 1];
+			let nextWord = this.words[i + 2] || null;
+
+			// set bigram as key and value as array of following words
+			if (chains[bigram]) {
+				chains[bigram].push(nextWord);
 			} else {
-				chains[word] = [ nextWord ];
+				chains[bigram] = [ nextWord ];
+			}
+
+			if (nextWord === null) {
+				break;
 			}
 		}
 		this.chains = chains;
@@ -32,20 +39,27 @@ class MarkovMachine {
 	/** return random text from chains */
 
 	makeText(numWords = 100) {
-		let keys = Object.keys(this.chains).filter((word) => word.match(/[A-Z]/));
-
+		// get keys that start with a capital letter
+		let keys = Object.keys(this.chains).filter((key) => key.match(/^[A-Z]/));
+		// if no keys start with a capital use all keys
 		if (keys.length === 0) {
 			keys = Object.keys(this.chains);
 		}
-		let word = keys[Math.floor(Math.random() * keys.length)];
-		let text = [ word ];
-		let next = word;
+		// get a random key
+		let bigram = keys[Math.floor(Math.random() * keys.length)];
+		let text = [ bigram ];
+		let next = bigram;
 
-		while (text.length < numWords && next != null) {
-			next = this.chains[word][Math.floor(Math.random() * this.chains[word].length)];
+		while (text.length < numWords - 1 && next != null) {
+			//get random word from array for current bigram
+			next = this.chains[bigram][Math.floor(Math.random() * this.chains[bigram].length)];
+			//add word to text array
 			text.push(next);
-			word = next;
+			//split bigram and make next bigram with last word and next word
+			let words = bigram.split(/[ \r\n]+/);
+			bigram = words[1] + ' ' + next;
 		}
+		// make string from text array and remove anything after last period
 		let str = text.join(' ');
 		let index = str.lastIndexOf('.') + 1 || str.length + 1;
 		return str.slice(0, index);

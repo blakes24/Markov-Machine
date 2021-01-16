@@ -4,11 +4,19 @@ describe('MarkovMachine constructor', function() {
 	test('constructor should create an array of words', function() {
 		const res = new MarkovMachine('the cat in the hat');
 		expect(res.words).toEqual(expect.any(Array));
+		expect(res.words.length).toEqual(5);
+		expect(res.words).toContain('cat');
 	});
 
-	test('constructor should create chains', function() {
+	test('constructor should create chains with bigrams as keys', function() {
 		const res = new MarkovMachine('the cat in the hat');
 		expect(res.chains).toEqual(expect.any(Object));
+		expect(res.chains).toEqual({
+			'the cat' : [ 'in' ],
+			'cat in'  : [ 'the' ],
+			'in the'  : [ 'hat' ],
+			'the hat' : [ null ]
+		});
 	});
 });
 
@@ -30,7 +38,7 @@ describe('MarkovMachine makeText', function() {
 
 	test('text should start with a capital letter', function() {
 		let str = markov.makeText();
-		expect(str.charAt(0).match(/[A-Z]/)).toBeTruthy();
+		expect(str.charAt(0).match(/^[A-Z]/)).toBeTruthy();
 	});
 
 	test('text should end with a period', function() {
