@@ -2,6 +2,7 @@
 const fs = require('fs');
 const process = require('process');
 const axios = require('axios');
+const stripHtml = require('string-strip-html');
 const { MarkovMachine } = require('./markov.js');
 
 let source = process.argv[3];
@@ -21,7 +22,7 @@ function makeText(source) {
 async function makeWebText(url) {
 	try {
 		let res = await axios.get(url);
-		let mm = new MarkovMachine(res.data);
+		let mm = new MarkovMachine(stripHtml(res.data).result);
 		console.log(mm.makeText());
 	} catch (err) {
 		console.error(`Error: Can't read URL ${url}: ${err}`);
